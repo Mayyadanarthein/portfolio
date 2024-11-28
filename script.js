@@ -127,31 +127,6 @@ window.addEventListener('scroll', () => {
     });
 });
 
-// Form submission handling
-const contactForm = document.querySelector('.contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Get form data
-        const formData = {
-            name: this.querySelector('input[type="text"]').value,
-            email: this.querySelector('input[type="email"]').value,
-            message: this.querySelector('textarea').value
-        };
-
-        // Here you would typically send the form data to a server
-        // For now, we'll just log it and show a success message
-        console.log('Form submitted:', formData);
-
-        // Clear form
-        this.reset();
-
-        // Show success message (you can customize this)
-        alert('Thanks for your message! I\'ll get back to you soon.');
-    });
-}
-
 // Add animation to project cards on scroll
 const observerOptions = {
     threshold: 0.2
@@ -185,17 +160,50 @@ function animateGrid() {
     }, 50);
 }
 
-animateGrid();
-
-// Add loading animation
-window.addEventListener('load', () => {
-    document.body.classList.add('loaded');
+// Initialize grid animation
+document.addEventListener('DOMContentLoaded', () => {
+    animateGrid();
 });
 
-// Prevent form submission on enter key (optional)
-document.addEventListener('keypress', function(e) {
-    if (e.keyCode === 13 || e.which === 13) {
+// Form submission handling
+const contactForm = document.querySelector('.contact-form');
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        return false;
-    }
+
+        try {
+            const formData = new FormData(this);
+
+            const response = await fetch('/', {
+                method: 'POST',
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString()
+            });
+
+            if (response.ok) {
+                // Clear form
+                this.reset();
+                alert('Thanks for your message! I\'ll get back to you soon.');
+            } else {
+                throw new Error('Form submission failed');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Sorry, there was an error sending your message. Please try again later.');
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const nameTitle = document.querySelector('.hero h1');
+    const text = nameTitle.textContent;
+    nameTitle.textContent = '';
+
+    // Create spans for each letter
+    [...text].forEach((letter, index) => {
+        const span = document.createElement('span');
+        span.textContent = letter;
+        span.style.animationDelay = `${index * 0.1}s`;
+        nameTitle.appendChild(span);
+    });
 });
